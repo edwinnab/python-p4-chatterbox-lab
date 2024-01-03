@@ -29,16 +29,17 @@ def messages():
         return response
     
     if request.method == 'POST':
+        data = request.get_json()
         #new_resource
-        new_message = Message(
-            body = request.form.get('body'),
-            username = request.form.get('username')
+        message = Message(
+            body = data['body'],
+            username = data['username']
         )
-        db.session.add(new_message)
+        db.session.add(message)
         db.session.commit()
         
         #convert the resource to dict -> JSON
-        message_obj = new_message.to_dict()
+        message_obj = message.to_dict()
         response = make_response(
             jsonify(message_obj),
             201
@@ -51,8 +52,10 @@ def messages_by_id(id):
     message = Message.query.get(id)
     
     if request.method == 'PATCH':
-        for attr in request.form:
-            setattr(message, attr, request.form.get(attr))
+        data = request.get_json()
+        
+        for attr in data:
+            setattr(message, attr, data[attr])
         db.session.add(message)
         db.session.commit()
         
